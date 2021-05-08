@@ -220,8 +220,6 @@ TEST_F(StateMachineTest, Timing) {
     // add entry checker
     this->entry = [&timer](const Transition *transition) {
 
-        std::cout << "Enter ..." << std::endl;
-
         // check global time
         EXPECT_NEAR(0.1, timer.time(), EPS_TIME);
 
@@ -229,8 +227,6 @@ TEST_F(StateMachineTest, Timing) {
 
     // add exit checker
     this->exit = [&timer](const Transition *transition) {
-
-        std::cout << "Exit ..." << std::endl;
 
         // check global time
         EXPECT_NEAR(0.4, timer.time(), EPS_TIME);
