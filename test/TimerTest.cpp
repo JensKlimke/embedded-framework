@@ -26,7 +26,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gtest/gtest.h>
-#include <state/Timer.h>
+#include <Timer.h>
 
 class TimerTest : public ::testing::Test, public emb::Timer {
 

@@ -22,5 +22,4 @@ include(ModuleCoverage)
 include(ModuleTesting)
 
 # library code
-add_subdirectory(src/framework)
-add_subdirectory(src/state)
+add_subdirectory(src)

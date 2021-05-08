@@ -26,7 +26,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gtest/gtest.h>
-#include <state/State.h>
+#include <State.h>
 
 #ifndef EPS_TIME
 #define EPS_TIME 1e-2
@@ -34,10 +34,7 @@
 
 using namespace emb;
 
-class StateMachineTest : public ::testing::Test, public State {
-
-
-};
+class StateMachineTest : public ::testing::Test, public State {};
 
 
 TEST_F(StateMachineTest, Stepping) {
