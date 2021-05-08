@@ -25,10 +25,14 @@
 #ifndef STATE_MACHINE_FRAMEWORK_H
 #define STATE_MACHINE_FRAMEWORK_H
 
-struct Framework {
+namespace emb {
 
-    static unsigned long getMilliseconds();
+    struct Framework {
 
-};
+        static unsigned long getMilliseconds();
+
+    };
+
+}
 
 #endif // STATE_MACHINE_FRAMEWORK_H
