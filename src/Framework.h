@@ -27,7 +27,7 @@
 
 struct Framework {
 
-    static unsigned long millis();
+    static unsigned long getMilliseconds();
 
 };
 

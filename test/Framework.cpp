@@ -24,7 +24,7 @@
 #include <chrono>
 #include <Framework.h>
 
-unsigned long Framework::millis() {
+unsigned long Framework::getMilliseconds() {
 
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();

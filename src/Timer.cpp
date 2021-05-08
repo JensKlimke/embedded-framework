@@ -26,7 +26,7 @@
 
 double emb::Timer::absoluteTime() {
 
-    return (double) Framework::millis() * 1e-3;
+    return (double) Framework::getMilliseconds() * 1e-3;
 
 }
 
