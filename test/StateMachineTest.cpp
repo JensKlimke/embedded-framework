@@ -170,7 +170,7 @@ TEST_F(StateMachineTest, CustomState) {
     } dynamicState;
 
     // create start state
-    this->addTransition([](auto) { return true; }, &dynamicState);
+    this->addTransition([](const Transition *) { return true; }, &dynamicState);
 
     // set transition back
     dynamicState.addTransition([](const Transition* transition) {

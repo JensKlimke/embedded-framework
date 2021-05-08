@@ -132,8 +132,8 @@ bool State::_checkTransitions() {
 void State::addTransition(TransitionCallback &&condition, State *targetState) {
 
     // create and add transition
-    _transitions.emplace_back(std::make_unique<Transition>(
-            Transition{this, targetState, std::move(condition)}
+    _transitions.emplace_back(std::unique_ptr<Transition>(
+            new Transition{this, targetState, std::move(condition)}
     ));
 
 }
@@ -142,8 +142,8 @@ void State::addTransition(TransitionCallback &&condition, State *targetState) {
 void State::addTimedTransition(double after, State *targetState) {
 
     // create transition
-    _transitions.emplace_back(std::make_unique<Transition>(
-            Transition{this, targetState, [this, after](const Transition *transition) {
+    _transitions.emplace_back(std::unique_ptr<Transition>(
+            new Transition{this, targetState, [this, after](const Transition *transition) {
                 return this->getTime() >= after;
             }}
     ));

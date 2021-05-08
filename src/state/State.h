@@ -42,9 +42,9 @@ namespace emb {
 
     struct Transition {
 
-        State *from = nullptr;          //!< Start node of the transition
-        State *to = nullptr;            //!< End node of the transition
-        TransitionCallback condition{}; //!< Condition to follow the transition
+        State *from;          //!< Start node of the transition
+        State *to;            //!< End node of the transition
+        TransitionCallback condition; //!< Condition to follow the transition
 
     };
 

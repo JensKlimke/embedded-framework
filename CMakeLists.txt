@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 # the project
 project(embedded-framework VERSION 0.1)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 # add ./cmake to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
