@@ -112,66 +112,6 @@ namespace emb {
 
     };
 
-
-    struct StateMachine {
-
-        std::vector<std::unique_ptr<State>> _states{};
-        State *currentState = nullptr; //!< The current child state
-
-
-        /**
-         * Sets the init state
-         * @param state State to be started in
-         */
-        void initialize(State *state) const {
-
-            // activate state
-            state->_activate();
-
-        }
-
-
-        /**
-         * Performs a step of the current state
-         */
-        void step() const {
-
-            if(currentState != nullptr)
-                currentState->step();
-
-        }
-
-
-        /**
-         * Creates a state in the state machine
-         * @return The created state
-         */
-        State *createState() {
-
-            // create state and add to vector
-            _states.emplace_back(std::unique_ptr<State>(new State));
-
-            // set parent
-            _states.back()->_parent = this;
-
-            // return state
-            return _states.back().get();
-
-        }
-
-
-        /**
-         * Adds a state to the state machine
-         * @param state State to be added
-         */
-        void addState(State *state) {
-
-            state->_parent = this;
-
-        }
-
-    };
-
 }
 
 #endif // STATE_MACHINE_STATE_H

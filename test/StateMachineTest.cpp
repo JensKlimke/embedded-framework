@@ -26,7 +26,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gtest/gtest.h>
-#include <State.h>
+#include <StateMachine.h>
 
 #ifndef EPS_TIME
 #define EPS_TIME 1e-2
