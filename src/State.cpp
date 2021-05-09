@@ -36,13 +36,6 @@ double State::getTime() const {
 }
 
 
-void State::init() {
-
-    _activate();
-
-}
-
-
 void State::_activate() {
 
     // set this to current

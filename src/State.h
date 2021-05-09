@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-// Created by Jens Klimke on 2021-04-21.
+// Created by Jens Klimke on 2021-05-08.
 //
 
 
@@ -58,14 +58,6 @@ namespace emb {
         StateInterfaceCallback onEnter{}; //!< Callback to be called on entry
         StateInterfaceCallback onLeave{}; //!< Callback to be called on exit
         StateStepCallback onStep{};       //!< Callback to be called every step
-
-
-        /**
-         * @brief Sets the state to the initial state
-         * Sets the state to current state without entry
-         * Starts timer
-         */
-        void init();
 
 
         /**
@@ -125,6 +117,19 @@ namespace emb {
 
         std::vector<std::unique_ptr<State>> _states{};
         State *currentState = nullptr; //!< The current child state
+
+
+        /**
+         * Sets the init state
+         * @param state State to be started in
+         */
+        void initialize(State *state) const {
+
+            // activate state
+            state->_activate();
+
+        }
+
 
         /**
          * Performs a step of the current state

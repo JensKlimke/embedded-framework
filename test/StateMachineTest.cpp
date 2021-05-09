@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-// Created by Jens Klimke on 2021-04-21.
+// Created by Jens Klimke on 2021-05-08.
 //
 
 #pragma clang diagnostic push
@@ -115,7 +115,7 @@ TEST_F(StateMachineTest, Stepping) {
     }, start);
 
     // initialize
-    start->init();
+    initialize(start);
 
     // check time
     EXPECT_NEAR(0.0, start->getTime(), 1e-2);
@@ -204,7 +204,7 @@ TEST_F(StateMachineTest, CustomState) {
     };
 
     // init state machine
-    this->init();
+    initialize(this);
 
     // run
     unsigned int steps = 0;
@@ -254,7 +254,7 @@ TEST_F(StateMachineTest, Timing) {
 
     // start timer and init state machine
     timer.start();
-    start->init();
+    initialize(start);
 
     // run
     while(!stop)
