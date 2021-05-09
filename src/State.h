@@ -32,13 +32,15 @@
 
 namespace emb {
 
-    struct State;      //!< Pre-definition of type state
-    struct Transition; //!< Pre-definition of type transition
+    struct State;        //!< Pre-definition of type state
+    struct Transition;   //!< Pre-definition of type transition
+    struct StateMachine; //!< Pre-definition of type state machine
 
     typedef std::function<bool (const Transition *transition)> TransitionConditionCallback; //!< Type definition for transition condition callbacks
     typedef std::function<void (const Transition *transition)> StateInterfaceCallback;      //!< Type definition for callbacks when entering or leaving state
     typedef std::function<void (State *state)> StateStepCallback;                               //!< Type definition for callbacks within state
     typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                      //!< Type definition for transition vector
+
 
     struct Transition {
 
@@ -50,6 +52,8 @@ namespace emb {
     };
 
     struct State {
+
+        friend class StateMachine;
 
         StateInterfaceCallback onEnter{}; //!< Callback to be called on entry
         StateInterfaceCallback onLeave{}; //!< Callback to be called on exit
@@ -96,11 +100,14 @@ namespace emb {
     protected:
 
         Timer _timer{};                  //!< The timer (is started with entry)
-        State *_currentState;            //!< The actual state
+        StateMachine *_parent;           //!< The parent state machine
         TransitionVector _transitions{}; //!< All transitions
 
-        /** Sets the state as current one and starts timer */
-        void _setActive();
+        /** Activates the state */
+        void _activate();
+
+        /** Deactivates the state */
+        void _deactivate();
 
         /** Call enter function */
         void _enter(const Transition *transition);
@@ -110,6 +117,53 @@ namespace emb {
 
         /** Check the transitions */
         bool _checkTransitions();
+
+    };
+
+
+    struct StateMachine {
+
+        std::vector<std::unique_ptr<State>> _states{};
+        State *currentState = nullptr; //!< The current child state
+
+        /**
+         * Performs a step of the current state
+         */
+        void step() const {
+
+            if(currentState != nullptr)
+                currentState->step();
+
+        }
+
+
+        /**
+         * Creates a state in the state machine
+         * @return The created state
+         */
+        State *createState() {
+
+            // create state and add to vector
+            _states.emplace_back(std::unique_ptr<State>(new State));
+
+            // set parent
+            _states.back()->_parent = this;
+
+            // return state
+            return _states.back().get();
+
+        }
+
+
+        /**
+         * Adds a state to the state machine
+         * @param state State to be added
+         */
+        void addState(State *state) {
+
+            state->_parent = this;
+
+        }
 
     };
 

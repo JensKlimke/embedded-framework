@@ -34,7 +34,17 @@
 
 using namespace emb;
 
-class StateMachineTest : public ::testing::Test, public State {};
+class StateMachineTest : public ::testing::Test, public StateMachine, public State {
+
+protected:
+
+    void SetUp() override {
+
+        this->addState(this);
+
+    }
+
+};
 
 
 TEST_F(StateMachineTest, Stepping) {
@@ -44,24 +54,24 @@ TEST_F(StateMachineTest, Stepping) {
     unsigned int stepCount  = 0;
     unsigned int exitCount  = 0;
 
-    this->entry = [this, &entryCount] (const Transition *transition) {
+    this->onEnter = [this, &entryCount] (const Transition *transition) {
         entryCount++;
         EXPECT_EQ(this, transition->to);
     };
 
-    this->step = [this, &stepCount] (State *state) {
+    this->onStep = [this, &stepCount] (State *state) {
         stepCount++;
         EXPECT_EQ(this, state);
     };
 
-    this->exit = [this, &exitCount] (const Transition *transition) {
+    this->onLeave = [this, &exitCount] (const Transition *transition) {
         exitCount++;
         EXPECT_EQ(this, transition->from);
     };
 
-    // define start and end state
-    State start{};
-    State end{};
+    // create start and end state
+    auto start = this->createState();
+    auto end = this->createState();
 
     // define flags for transitions
     bool fromStart = false;
@@ -69,10 +79,10 @@ TEST_F(StateMachineTest, Stepping) {
     bool backToStart = false;
 
     // set start to this transition
-    start.addTransition([this, &start, &fromStart](const Transition *transition){
+    start->addTransition([this, &start, &fromStart](const Transition *transition){
 
         // check
-        EXPECT_EQ(&start, transition->from);
+        EXPECT_EQ(start, transition->from);
         EXPECT_EQ(this, transition->to);
 
         // return
@@ -85,76 +95,76 @@ TEST_F(StateMachineTest, Stepping) {
 
         // check
         EXPECT_EQ(this, transition->from);
-        EXPECT_EQ(&end, transition->to);
+        EXPECT_EQ(end, transition->to);
 
         // return
         return toEnd;
 
-    }, &end);
+    }, end);
 
     // set end back to start transition
-    end.addTransition([&end, &start, &backToStart](const Transition *transition){
+    end->addTransition([&end, &start, &backToStart](const Transition *transition){
 
         // check
-        EXPECT_EQ(&end, transition->from);
-        EXPECT_EQ(&start, transition->to);
+        EXPECT_EQ(end, transition->from);
+        EXPECT_EQ(start, transition->to);
 
         // return
         return backToStart;
 
-    }, &start);
+    }, start);
 
     // initialize
-    start.init();
+    start->init();
 
     // check time
-    EXPECT_NEAR(0.0, start.getTime(), 1e-2);
+    EXPECT_NEAR(0.0, start->getTime(), 1e-2);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&start, _currentState);
+    StateMachine::StateMachine::step();
+    EXPECT_EQ(start, currentState);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&start, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(start, currentState);
 
     // set condition
     fromStart = true;
 
     // perform step
-    globalStep();
-    EXPECT_EQ(this, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(this, currentState);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(this, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(this, currentState);
 
     // set condition
     toEnd = true;
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&end, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(end, currentState);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&end, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(end, currentState);
 
 
     // set condition
     backToStart = true;
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&start, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(start, currentState);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(this, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(this, currentState);
 
     // perform step
-    globalStep();
-    EXPECT_EQ(&end, _currentState);
+    StateMachine::step();
+    EXPECT_EQ(end, currentState);
 
 }
 
@@ -166,6 +176,9 @@ TEST_F(StateMachineTest, CustomState) {
         int valueToBeChanged = 0;
     } dynamicState;
 
+    // add state
+    this->addState(&dynamicState);
+
     // create start state
     this->addTransition([](const Transition *) { return true; }, &dynamicState);
 
@@ -175,18 +188,18 @@ TEST_F(StateMachineTest, CustomState) {
     }, this);
 
     // set incrementer
-    dynamicState.entry = [] (const Transition *transition) {
+    dynamicState.onEnter = [] (const Transition *transition) {
         ((CustomState*) transition->to)->valueToBeChanged = 5;
     };
 
     // set incrementer
-    dynamicState.step = [] (State *state) {
+    dynamicState.onStep = [] (State *state) {
         ((CustomState*) state)->valueToBeChanged++;
     };
 
     // stop condition
     bool stop = false;
-    this->entry = [&stop](const Transition *transition) {
+    this->onEnter = [&stop](const Transition *transition) {
         stop = true;
     };
 
@@ -196,7 +209,7 @@ TEST_F(StateMachineTest, CustomState) {
     // run
     unsigned int steps = 0;
     while(!stop) {
-        State::globalStep();
+        StateMachine::step();
         steps++;
     }
 
@@ -211,14 +224,14 @@ TEST_F(StateMachineTest, Timing) {
 
     // create objects: timer and init state
     Timer timer{};
-    State start{};
+    auto start = this->createState();
 
     // add timed transition
-    start.addTimedTransition(0.1, this);
-    this->addTimedTransition(0.3, &start);
+    start->addTimedTransition(0.1, this);
+    this->addTimedTransition(0.3, start);
 
     // add entry checker
-    this->entry = [&timer](const Transition *transition) {
+    this->onEnter = [&timer](const Transition *transition) {
 
         // check global time
         EXPECT_NEAR(0.1, timer.time(), EPS_TIME);
@@ -226,7 +239,7 @@ TEST_F(StateMachineTest, Timing) {
     };
 
     // add exit checker
-    this->exit = [&timer](const Transition *transition) {
+    this->onLeave = [&timer](const Transition *transition) {
 
         // check global time
         EXPECT_NEAR(0.4, timer.time(), EPS_TIME);
@@ -235,17 +248,17 @@ TEST_F(StateMachineTest, Timing) {
 
     // set stop trigger
     bool stop = false;
-    start.entry = [&stop](const Transition *transition) {
+    start->onEnter = [&stop](const Transition *transition) {
         stop = true;
     };
 
     // start timer and init state machine
     timer.start();
-    start.init();
+    start->init();
 
     // run
     while(!stop)
-        State::globalStep();
+        StateMachine::step();
 
     // check total time
     EXPECT_NEAR(0.4, timer.time(), EPS_TIME);

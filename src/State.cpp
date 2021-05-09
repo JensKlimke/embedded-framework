@@ -28,13 +28,6 @@
 using namespace emb;
 
 
-void State::init() {
-
-    // set current
-    _setActive();
-
-}
-
 
 double State::getTime() const {
 
@@ -43,21 +36,36 @@ double State::getTime() const {
 }
 
 
-void State::_setActive() {
+void State::init() {
+
+    _activate();
+
+}
+
+
+void State::_activate() {
+
+    // set this to current
+    _parent->currentState = this;
 
     // start timer
     _timer.start();
 
-    // set this state to current
-    _currentState = this;
+}
+
+
+void State::_deactivate() {
+
+    // unset current state
+    _parent->currentState = nullptr;
 
 }
 
 
 void State::_enter(const Transition *transition) {
 
-    // set to current and start timer
-    _setActive();
+    // activate the state
+    _activate();
 
     // run user defined entry function
     if(onEnter)
@@ -85,6 +93,9 @@ void State::_exit(const Transition *transition) {
     if(onLeave)
         onLeave(transition);
 
+    // deactivate state
+    _deactivate();
+
 }
 
 
@@ -98,10 +109,7 @@ bool State::_checkTransitions() {
             // leave current
             _exit(t.get());
 
-            // set new current state
-            _currentState = t->to;
-
-            // enter new
+            // enter new one
             t->to->_enter(t.get());
 
             // return with true
