@@ -72,8 +72,8 @@ void State::_enter(const Transition *transition) {
     _setActive();
 
     // run user defined entry function
-    if(entry)
-        entry(transition);
+    if(onEnter)
+        onEnter(transition);
 
 }
 
@@ -85,8 +85,8 @@ void State::_step() {
         return;
 
     // run step
-    if(step)
-        step(this);
+    if(onStep)
+        onStep(this);
 
 }
 
@@ -94,8 +94,8 @@ void State::_step() {
 void State::_exit(const Transition *transition) {
 
     // run user defined exit state
-    if(exit)
-        exit(transition);
+    if(onLeave)
+        onLeave(transition);
 
 }
 
@@ -129,7 +129,7 @@ bool State::_checkTransitions() {
 }
 
 
-void State::addTransition(TransitionCallback &&condition, State *targetState) {
+void State::addTransition(TransitionConditionCallback &&condition, State *targetState) {
 
     // create and add transition
     _transitions.emplace_back(std::unique_ptr<Transition>(

@@ -35,24 +35,25 @@ namespace emb {
     struct State;      //!< Pre-definition of type state
     struct Transition; //!< Pre-definition of type transition
 
-    typedef std::function<bool (const Transition *transition)> TransitionCallback;     //!< Type definition for transition condition callbacks
-    typedef std::function<void (const Transition *transition)> StateInterfaceCallback; //!< Type definition for callbacks when entering or leaving state
-    typedef std::function<void (State *state)> StateCallback;                          //!< Type definition for callbacks within state
-    typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                 //!< Type definition for transition vector
+    typedef std::function<bool (const Transition *transition)> TransitionConditionCallback; //!< Type definition for transition condition callbacks
+    typedef std::function<void (const Transition *transition)> StateInterfaceCallback;      //!< Type definition for callbacks when entering or leaving state
+    typedef std::function<void (State *state)> StateStepCallback;                               //!< Type definition for callbacks within state
+    typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                      //!< Type definition for transition vector
 
     struct Transition {
 
         State *from;          //!< Start node of the transition
         State *to;            //!< End node of the transition
-        TransitionCallback condition; //!< Condition to follow the transition
+
+        TransitionConditionCallback condition; //!< Condition to follow the transition
 
     };
 
     struct State {
 
-        StateInterfaceCallback entry{}; //!< Callback to be called on entry
-        StateInterfaceCallback exit{};  //!< Callback to be called on exit
-        StateCallback step{};           //!< Callback to be called every step
+        StateInterfaceCallback onEnter{}; //!< Callback to be called on entry
+        StateInterfaceCallback onLeave{}; //!< Callback to be called on exit
+        StateStepCallback onStep{};       //!< Callback to be called every step
 
 
         /**
@@ -71,17 +72,11 @@ namespace emb {
 
 
         /**
-         * Performs a global state step (Checks all conditions within the actual state.
-         */
-        static void globalStep();
-
-
-        /**
          * Adds a transition to the target state
          * @param condition Condition callback to be checked
          * @param targetState Target state to be reached
          */
-        void addTransition(TransitionCallback &&condition, State *targetState);
+        void addTransition(TransitionConditionCallback &&condition, State *targetState);
 
 
         /**
@@ -95,7 +90,7 @@ namespace emb {
     protected:
 
         Timer _timer{};                  //!< The timer (is started with entry)
-        static State *_currentState;     //!< The actual state
+        State *_currentState;            //!< The actual state
         TransitionVector _transitions{}; //!< All transitions
 
         /** Sets the state as current one and starts timer */
