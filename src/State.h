@@ -65,6 +65,12 @@ namespace emb {
 
 
         /**
+         * The step function for the state
+         */
+        void step();
+
+
+        /**
          * Returns the time since last entry (or init, if so) in seconds
          * @return State time in seconds
          */
@@ -98,9 +104,6 @@ namespace emb {
 
         /** Call enter function */
         void _enter(const Transition *transition);
-
-        /** Call step function */
-        void _step();
 
         /** Call exit function */
         void _exit(const Transition *transition);

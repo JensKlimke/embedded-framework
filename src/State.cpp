@@ -28,18 +28,6 @@
 using namespace emb;
 
 
-State *State::_currentState = nullptr;
-
-
-void State::globalStep() {
-
-    // run step of current state
-    if(_currentState != nullptr)
-        _currentState->_step();
-
-}
-
-
 void State::init() {
 
     // set current
@@ -78,7 +66,7 @@ void State::_enter(const Transition *transition) {
 }
 
 
-void State::_step() {
+void State::step() {
 
     // check transitions
     if(_checkTransitions())
