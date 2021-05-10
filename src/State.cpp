@@ -21,9 +21,8 @@
 // Created by Jens Klimke on 2021-05-08
 //
 
-#include "State.h"
-#include "StateMachine.h"
 #include <memory>
+#include "State.h"
 
 using namespace emb;
 
@@ -39,7 +38,8 @@ double State::getTime() const {
 void State::_activate() {
 
     // set this to current
-    _parent->currentState = this;
+    if(_parent != nullptr)
+        _parent->_currentState = this;
 
     // start timer
     _timer.start();
@@ -50,12 +50,17 @@ void State::_activate() {
 void State::_deactivate() {
 
     // unset current state
-    _parent->currentState = nullptr;
+    if(_parent != nullptr)
+        _parent->_currentState = nullptr;
 
 }
 
 
 void State::_enter(const Transition *transition) {
+
+    // activate parent
+    if(_parent != nullptr && _parent != transition->from->_parent)
+        _parent->_enter(transition);
 
     // activate the state
     _activate();
@@ -77,6 +82,10 @@ void State::step() {
     if(onStep)
         onStep(this);
 
+    // perform sub-step
+    if(_currentState)
+        _currentState->step();
+
 }
 
 
@@ -88,6 +97,10 @@ void State::_exit(const Transition *transition) {
 
     // deactivate state
     _deactivate();
+
+    // deactivate parent
+    if(_parent != nullptr && _parent != transition->to->_parent)
+        _parent->_exit(transition);
 
 }
 
@@ -136,5 +149,45 @@ void State::addTimedTransition(double after, State *targetState) {
                 return this->getTime() >= after;
             }}
     ));
+
+}
+
+
+void State::initialize() {
+
+    // init parent
+    if(_parent != nullptr)
+        _parent->initialize();
+
+    // activate state
+    this->_activate();
+
+}
+
+
+State *State::createState() {
+
+    // create state and add to vector
+    _states.emplace_back(std::unique_ptr<State>(new State));
+
+    // set parent
+    _states.back()->_parent = this;
+
+    // return state
+    return _states.back().get();
+
+}
+
+
+void State::addState(State *state) {
+
+    state->_parent = this;
+
+}
+
+
+State * State::currentState() const {
+
+    return _currentState;
 
 }

@@ -2,6 +2,7 @@
 add_executable(StateMachineTest
             TimerTest.cpp
             StateMachineTest.cpp
+            SubStateMachineTest.cpp
             Framework.cpp
         )
 

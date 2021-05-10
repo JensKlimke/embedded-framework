@@ -28,19 +28,19 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <iostream>
 #include "Timer.h"
 
 namespace emb {
 
     struct State;        //!< Pre-definition of type state
     struct Transition;   //!< Pre-definition of type transition
-    struct StateMachine; //!< Pre-definition of type state machine
 
     typedef std::function<bool (const Transition *transition)> TransitionConditionCallback; //!< Type definition for transition condition callbacks
     typedef std::function<void (const Transition *transition)> StateInterfaceCallback;      //!< Type definition for callbacks when entering or leaving state
-    typedef std::function<void (State *state)> StateStepCallback;                               //!< Type definition for callbacks within state
+    typedef std::function<void (State *state)> StateStepCallback;                           //!< Type definition for callbacks within state
     typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                      //!< Type definition for transition vector
-
+    typedef std::vector<std::unique_ptr<State>> StateVector;                                //!< Type definition for state vector
 
     struct Transition {
 
@@ -53,24 +53,22 @@ namespace emb {
 
     struct State {
 
-        friend class StateMachine;
-
         StateInterfaceCallback onEnter{}; //!< Callback to be called on entry
         StateInterfaceCallback onLeave{}; //!< Callback to be called on exit
-        StateStepCallback onStep{};       //!< Callback to be called every step
+        StateStepCallback onStep{};       //!< Callback to be called every performStep
 
 
         /**
-         * The step function for the state
+         * The performStep function for the state
          */
-        void step();
+        virtual void step();
 
 
         /**
          * Returns the time since last entry (or init, if so) in seconds
          * @return State time in seconds
          */
-        double getTime() const;
+        virtual double getTime() const;
 
 
         /**
@@ -78,7 +76,7 @@ namespace emb {
          * @param condition Condition callback to be checked
          * @param targetState Target state to be reached
          */
-        void addTransition(TransitionConditionCallback &&condition, State *targetState);
+        virtual void addTransition(TransitionConditionCallback &&condition, State *targetState);
 
 
         /**
@@ -86,30 +84,63 @@ namespace emb {
          * @param after Time to be passed for transition condition
          * @param targetState Target state to be reached
          */
-        void addTimedTransition(double after, State *targetState);
+        virtual void addTimedTransition(double after, State *targetState);
+
+
+        /**
+         * Sets this state to current state
+         */
+        void initialize();
+
+
+        /**
+         * Creates a state in the state machine
+         * @return The created state
+         */
+        virtual State *createState();
+
+
+        /**
+         * Adds a state to the state machine
+         * @param state State to be added
+         */
+        virtual void addState(State *state);
+
+
+        /**
+         * Return current sub-state
+         * @return Current sub-state
+         */
+        virtual State *currentState() const;
 
 
     protected:
 
+
         Timer _timer{};                  //!< The timer (is started with entry)
-        StateMachine *_parent;           //!< The parent state machine
+
+        State *_parent = nullptr;        //!< The parent state machine
+
+        StateVector _states{};           //!< Vector of states for memory purposes
         TransitionVector _transitions{}; //!< All transitions
 
+
         /** Activates the state */
-        void _activate();
+        virtual void _activate();
 
         /** Deactivates the state */
-        void _deactivate();
+        virtual void _deactivate();
 
         /** Call enter function */
-        void _enter(const Transition *transition);
+        virtual void _enter(const Transition *transition);
 
         /** Call exit function */
-        void _exit(const Transition *transition);
+        virtual void _exit(const Transition *transition);
 
         /** Check the transitions */
-        bool _checkTransitions();
+        virtual bool _checkTransitions();
 
+        State *_currentState = nullptr;
     };
 
 }
