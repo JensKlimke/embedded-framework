@@ -114,6 +114,13 @@ namespace emb {
         virtual State *currentState() const;
 
 
+        /**
+         * Returns the parent state
+         * @return Parent state
+         */
+        virtual const State *getParent() const;
+
+
     protected:
 
 

@@ -59,7 +59,7 @@ void State::_deactivate() {
 void State::_enter(const Transition *transition) {
 
     // activate parent
-    if(_parent != nullptr && _parent != transition->from->_parent)
+    if(_parent != nullptr && _parent != transition->from->getParent())
         _parent->_enter(transition);
 
     // activate the state
@@ -99,7 +99,7 @@ void State::_exit(const Transition *transition) {
     _deactivate();
 
     // deactivate parent
-    if(_parent != nullptr && _parent != transition->to->_parent)
+    if(_parent != nullptr && _parent != transition->to->getParent())
         _parent->_exit(transition);
 
 }
@@ -189,5 +189,12 @@ void State::addState(State *state) {
 State * State::currentState() const {
 
     return _currentState;
+
+}
+
+
+const State * State::getParent() const {
+
+    return _parent;
 
 }
