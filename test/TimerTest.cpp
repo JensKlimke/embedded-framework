@@ -35,9 +35,10 @@ class TimerTest : public ::testing::Test, public emb::Timer {
 };
 
 
-TEST_F(TimerTest, StartStop) {
+TEST_F(TimerTest, Start) {
 
     EXPECT_NEAR(0.0, this->_startTime, 1e-12);
+    EXPECT_NEAR(0.0, this->_pauseTime, 1e-12);
     EXPECT_NO_THROW(this->start());
 
     EXPECT_NEAR(this->_startTime, Timer::absoluteTime(), 1.0);
@@ -48,37 +49,45 @@ TEST_F(TimerTest, StartStop) {
 
 TEST_F(TimerTest, StartWaitStop) {
 
+    // start test timer
     this->start();
 
-    unsigned i = 0;
-    while(this->time() < 5.0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        ++i;
-    }
+    // perform a few steps
+    while(this->time() < 0.2)
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    EXPECT_EQ(i, 5);
-    EXPECT_NEAR(5.0, this->time(), 1.0);
+    EXPECT_NEAR(0.2, this->time(), 0.1);
+
+    stop();
+
+    EXPECT_NEAR(0.0, this->_startTime, 1e-12);
+    EXPECT_NEAR(0.0, this->_pauseTime, 1e-12);
 
 }
 
 
 TEST_F(TimerTest, Pause) {
 
+    // start ref timer
+    emb::Timer ref{};
+    ref.start();
+
+    // start test timer
     start();
 
-    unsigned i;
-    for(i = 0; i < 8; ++i) {
+    // perform a few steps
+    for(unsigned i = 0; i < 5; ++i) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         if(i == 2)
             pause();
         else if(i == 4)
-            resume();
+            start();
 
     }
 
-    EXPECT_NEAR(6.0, this->time(), 1.0);
+    EXPECT_NEAR(0.2, ref.time() - time(), 0.1);
 
 }
 

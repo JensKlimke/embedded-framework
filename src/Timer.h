@@ -53,6 +53,13 @@ namespace emb {
 
 
         /**
+         * @brief Stops the timer.
+         * Resets the timer states.
+         */
+        void stop();
+
+
+        /**
          * @brief Pauses the current timer.
          * Sets the pause time to the current time. On resume the paused time is added to the start time.
          */

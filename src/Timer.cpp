@@ -32,11 +32,26 @@ double emb::Timer::absoluteTime() {
 
 void emb::Timer::start() {
 
+    // resume, when paused
+    if(_pauseTime > 0.0) {
+        resume();
+        return;
+    }
+
     // set start time
     _startTime = absoluteTime();
     _pauseTime = 0.0;
 
 }
+
+
+void emb::Timer::stop() {
+
+    _startTime = 0.0;
+    _pauseTime = 0.0;
+
+}
+
 
 void emb::Timer::pause() {
 
