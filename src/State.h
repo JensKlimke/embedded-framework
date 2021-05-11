@@ -65,8 +65,15 @@ namespace emb {
 
 
         /**
-         * Returns the time since last entry (or init, if so) in seconds
-         * @return State time in seconds
+         * Returns the timer of the state
+         * @return The timer of the state
+         */
+        virtual Timer * getTimer();
+
+
+        /**
+         * Returns the time of the state since activation in seconds
+         * @return Time of the state
          */
         virtual double getTime() const;
 

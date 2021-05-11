@@ -28,6 +28,13 @@ using namespace emb;
 
 
 
+Timer * State::getTimer() {
+
+    return &_timer;
+
+}
+
+
 double State::getTime() const {
 
     return _timer.time();
