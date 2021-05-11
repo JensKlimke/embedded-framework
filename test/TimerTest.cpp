@@ -47,6 +47,16 @@ TEST_F(TimerTest, Start) {
 }
 
 
+TEST_F(TimerTest, StartWithOffset) {
+
+    EXPECT_NEAR(0.0, this->_startTime, 1e-12);
+    EXPECT_NEAR(0.0, this->_pauseTime, 1e-12);
+    EXPECT_NO_THROW(this->startWithOffset(10.0));
+    EXPECT_NEAR(10.0, this->time(), 0.1);
+
+}
+
+
 TEST_F(TimerTest, StartWaitStop) {
 
     // start test timer
@@ -68,10 +78,6 @@ TEST_F(TimerTest, StartWaitStop) {
 
 TEST_F(TimerTest, Pause) {
 
-    // start ref timer
-    emb::Timer ref{};
-    ref.start();
-
     // start test timer
     start();
 
@@ -87,7 +93,7 @@ TEST_F(TimerTest, Pause) {
 
     }
 
-    EXPECT_NEAR(0.2, ref.time() - time(), 0.1);
+    EXPECT_NEAR(0.3, time(), 0.1);
 
 }
 

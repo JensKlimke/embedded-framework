@@ -33,13 +33,18 @@ double emb::Timer::absoluteTime() {
 void emb::Timer::start() {
 
     // resume, when paused
-    if(_pauseTime > 0.0) {
-        resume();
-        return;
-    }
+    if(isPaused())
+        return resume();
 
     // set start time
-    _startTime = absoluteTime();
+    startWithOffset(0.0);
+
+}
+
+
+void emb::Timer::startWithOffset(double offset) {
+
+    _startTime = absoluteTime() - offset;
     _pauseTime = 0.0;
 
 }
@@ -47,6 +52,7 @@ void emb::Timer::start() {
 
 void emb::Timer::stop() {
 
+    // reset all
     _startTime = 0.0;
     _pauseTime = 0.0;
 
@@ -62,18 +68,24 @@ void emb::Timer::pause() {
 
 void emb::Timer::resume() {
 
-    // time diff
-    auto p = absoluteTime() - _pauseTime;
-
-    // shift start time and
-    _startTime += p;
-    _pauseTime = 0.0;
+    // restart with time-at-pause as offset
+    startWithOffset(_pauseTime - _startTime);
 
 }
 
 double emb::Timer::time() const {
 
-    // get time difference
-    return absoluteTime() - _startTime;
+    // when paused, used paused time as reference, abs time otherwise
+    auto ref = isPaused() ? _pauseTime : absoluteTime();
+
+    // difference
+    return ref - _startTime;
+
+}
+
+
+bool emb::Timer::isPaused() const {
+
+    return _pauseTime > 1e-9;
 
 }

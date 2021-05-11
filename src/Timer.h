@@ -53,6 +53,13 @@ namespace emb {
 
 
         /**
+         * @brief Starts the timer with an initial offset.
+         * @param offset Offset to be started with.
+         */
+        void startWithOffset(double offset);
+
+
+        /**
          * @brief Stops the timer.
          * Resets the timer states.
          */
@@ -78,6 +85,14 @@ namespace emb {
          * @return The relative time
          */
         double time() const;
+
+
+        /**
+         * @brief Returns whether the timer is paused.
+         * Checks the pause time. If it is set, the timer is paused.
+         * @return Pause flag
+         */
+        bool isPaused() const;
 
     };
 
