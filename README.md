@@ -4,10 +4,15 @@
 
 A very small framework for embedded applications. Can be used for Arduino applications. Currently containing
 
-# Features
+# Features already implemented
 
-* Very simple logical state machine implementation with timer functionality
+* Very simple logical state machine implementation with timer functionality.
 
+
+## Next steps
+
+- [ ] Start state and end state
+- [ ] Multiple chained transitions
 
 ## Features to be implemented
 
@@ -15,3 +20,4 @@ A very small framework for embedded applications. Can be used for Arduino applic
 - [ ] JSON constructor and parser wrapper
 - [ ] Filter function based on time
 - [ ] Arduino implementations
+
