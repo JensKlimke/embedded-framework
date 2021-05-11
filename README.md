@@ -1,5 +1,7 @@
 # README
 
+[![Build Status](https://travis-ci.com/JensKlimke/embedded-framework.svg?branch=main)](https://travis-ci.com/JensKlimke/embedded-framework)
+
 A very small framework for embedded applications. Can be used for Arduino applications. Currently containing
 
 # Features
