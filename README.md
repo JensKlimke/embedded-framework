@@ -11,8 +11,12 @@ A very small framework for embedded applications. Can be used for Arduino applic
 
 ## Next steps
 
+- [ ] Clean up workflow
 - [ ] Start state and end state
+- [ ] Check transition before entering
+- [ ] Run step after entering
 - [ ] Multiple chained transitions
+- [ ] Events for transition (is valid only for one step)
 
 ## Features to be implemented
 
