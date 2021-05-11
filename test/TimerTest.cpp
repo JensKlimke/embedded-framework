@@ -51,13 +51,13 @@ TEST_F(TimerTest, StartWaitStop) {
     this->start();
 
     unsigned i = 0;
-    while(this->time() < 0.5) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while(this->time() < 5.0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         ++i;
     }
 
     EXPECT_EQ(i, 5);
-    EXPECT_NEAR(0.5, this->time(), 0.1);
+    EXPECT_NEAR(5.0, this->time(), 1.0);
 
 }
 
@@ -69,7 +69,7 @@ TEST_F(TimerTest, Pause) {
     unsigned i;
     for(i = 0; i < 8; ++i) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         if(i == 2)
             pause();
@@ -78,7 +78,7 @@ TEST_F(TimerTest, Pause) {
 
     }
 
-    EXPECT_NEAR(0.6, this->time(), 0.1);
+    EXPECT_NEAR(6.0, this->time(), 1.0);
 
 }
 
