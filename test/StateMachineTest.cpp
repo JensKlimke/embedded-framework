@@ -260,4 +260,31 @@ TEST_F(StateMachineTest, Timing) {
 
 }
 
+
+TEST_F(StateMachineTest, ManipulateTimer) {
+
+    // add state
+    auto start = createState();
+    auto state = createState();
+
+    // add transition
+    start->addTransition([] (const Transition *) { return true; }, state);
+
+    // manipulate timer
+    state->onEnter = [] (const Transition *t) {
+        t->to->getTimer()->startWithOffset(100.0);
+    };
+
+    // initialize state
+    start->initialize();
+
+    // step
+    step();
+
+    // check time
+    EXPECT_EQ(state, currentState());
+    EXPECT_NEAR(100.0, state->getTime(), 1e-3);
+
+}
+
 #pragma clang diagnostic pop
