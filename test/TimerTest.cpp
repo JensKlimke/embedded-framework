@@ -26,6 +26,8 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gtest/gtest.h>
+#include <chrono>
+#include <thread>
 #include <Timer.h>
 
 class TimerTest : public ::testing::Test, public emb::Timer {
@@ -35,12 +37,50 @@ class TimerTest : public ::testing::Test, public emb::Timer {
 
 TEST_F(TimerTest, StartStop) {
 
-    EXPECT_NEAR(0.0, this->_start, 1e-12);
+    EXPECT_NEAR(0.0, this->_startTime, 1e-12);
     EXPECT_NO_THROW(this->start());
 
-    EXPECT_NEAR(this->_start, Timer::absoluteTime(), 1.0);
-    EXPECT_NEAR(0.0, this->time(), 1.0);
+    EXPECT_NEAR(this->_startTime, Timer::absoluteTime(), 1.0);
+    EXPECT_NEAR(0.0, this->time(), 0.01);
 
 }
+
+
+TEST_F(TimerTest, StartWaitStop) {
+
+    this->start();
+
+    unsigned i = 0;
+    while(this->time() < 0.5) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        ++i;
+    }
+
+    EXPECT_EQ(i, 5);
+    EXPECT_NEAR(0.5, this->time(), 0.1);
+
+}
+
+
+TEST_F(TimerTest, Pause) {
+
+    start();
+
+    unsigned i;
+    for(i = 0; i < 8; ++i) {
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        if(i == 2)
+            pause();
+        else if(i == 4)
+            resume();
+
+    }
+
+    EXPECT_NEAR(0.6, this->time(), 0.1);
+
+}
+
 
 #pragma clang diagnostic pop

@@ -31,7 +31,8 @@ namespace emb {
 
     protected:
 
-        double _start = 0;
+        double _startTime = 0.0;
+        double _pauseTime = 0.0;
 
     public:
 
@@ -49,6 +50,19 @@ namespace emb {
          * also while timer is "running".
          */
         void start();
+
+
+        /**
+         * @brief Pauses the current timer.
+         * Sets the pause time to the current time. On resume the paused time is added to the start time.
+         */
+        void pause();
+
+
+        /**
+         * @brief Resumes the paused timer.
+         */
+        void resume();
 
 
         /**

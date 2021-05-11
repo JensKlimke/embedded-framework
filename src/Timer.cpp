@@ -32,12 +32,33 @@ double emb::Timer::absoluteTime() {
 
 void emb::Timer::start() {
 
-    _start = absoluteTime();
+    // set start time
+    _startTime = absoluteTime();
+    _pauseTime = 0.0;
+
+}
+
+void emb::Timer::pause() {
+
+    // set paused time
+    _pauseTime = absoluteTime();
+
+}
+
+void emb::Timer::resume() {
+
+    // time diff
+    auto p = absoluteTime() - _pauseTime;
+
+    // shift start time and
+    _startTime += p;
+    _pauseTime = 0.0;
 
 }
 
 double emb::Timer::time() const {
 
-    return absoluteTime() - _start;
+    // get time difference
+    return absoluteTime() - _startTime;
 
 }
