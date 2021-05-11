@@ -57,60 +57,46 @@ using namespace emb;
 
 class SubStateMachineTest : public ::testing::Test, public State {
 
-protected:
-
-    State stateNoExtraction{};
-    State stateExtraction{};
-
-    State stateIdle{};
-    State stateInTime{};
-    State stateOverTime{};
-    State stateStopped{};
-
-    bool pump = false;
-    bool timeOver = false;
-    bool delayOver = false;
-
-    void SetUp() override {
-
-        // link states
-        addState(&stateNoExtraction);
-        addState(&stateExtraction);
-
-        // link sub-states
-        stateNoExtraction.addState(&stateIdle);
-        stateNoExtraction.addState(&stateStopped);
-        stateExtraction.addState(&stateInTime);
-        stateExtraction.addState(&stateOverTime);
-
-        // add transitions
-        stateNoExtraction.addTransition([this](const Transition *transition){ return pump; }, &stateInTime);
-        stateInTime.addTransition([this](const Transition *transition){ return timeOver; }, &stateOverTime);
-        stateExtraction.addTransition([this](const Transition *transition){ return !pump; }, &stateStopped);
-        stateStopped.addTransition([this](const Transition *transition){ return delayOver; }, &stateIdle);
-
-    }
-
 };
 
 
 TEST_F(SubStateMachineTest, CoffeeExtraction) {
 
+    // flags
+    bool pump = false;
+    bool timeOver = false;
+    bool delayOver = false;
+
+    // link states
+    auto stateNoExtraction = this->createState();
+    auto stateExtraction = this->createState();
+
+    // link sub-states
+    auto stateIdle = stateNoExtraction->createState();
+    auto stateStopped = stateNoExtraction->createState();
+    auto stateInTime = stateExtraction->createState();
+    auto stateOverTime = stateExtraction->createState();
+
+    // add transitions
+    stateNoExtraction->addTransition([&pump](const Transition *transition){ return pump; }, stateInTime);
+    stateInTime->addTransition([&timeOver](const Transition *transition){ return timeOver; }, stateOverTime);
+    stateExtraction->addTransition([&pump](const Transition *transition){ return !pump; }, stateStopped);
+    stateStopped->addTransition([&delayOver](const Transition *transition){ return delayOver; }, stateIdle);
+
     // initialize
-    stateIdle.initialize();
+    stateIdle->initialize();
 
     // check current states
-    EXPECT_EQ(&stateNoExtraction, currentState());
-    EXPECT_EQ(&stateIdle, currentState()->currentState());
-    EXPECT_EQ(&stateIdle, currentState()->currentState());
+    EXPECT_EQ(stateNoExtraction, currentState());
+    EXPECT_EQ(stateIdle, currentState()->currentState());
 
 
     // step
     step();
 
     // check current states
-    EXPECT_EQ(&stateNoExtraction, currentState());
-    EXPECT_EQ(&stateIdle, currentState()->currentState());
+    EXPECT_EQ(stateNoExtraction, currentState());
+    EXPECT_EQ(stateIdle, currentState()->currentState());
 
 
     // step
@@ -118,16 +104,16 @@ TEST_F(SubStateMachineTest, CoffeeExtraction) {
     step();
 
     // check current states
-    EXPECT_EQ(&stateExtraction, currentState());
-    EXPECT_EQ(&stateInTime, currentState()->currentState());
+    EXPECT_EQ(stateExtraction, currentState());
+    EXPECT_EQ(stateInTime, currentState()->currentState());
 
 
     // step
     step();
 
     // check current states
-    EXPECT_EQ(&stateExtraction, currentState());
-    EXPECT_EQ(&stateInTime, currentState()->currentState());
+    EXPECT_EQ(stateExtraction, currentState());
+    EXPECT_EQ(stateInTime, currentState()->currentState());
 
 
     // step
@@ -135,8 +121,8 @@ TEST_F(SubStateMachineTest, CoffeeExtraction) {
     step();
 
     // check current states
-    EXPECT_EQ(&stateNoExtraction, currentState());
-    EXPECT_EQ(&stateStopped, currentState()->currentState());
+    EXPECT_EQ(stateNoExtraction, currentState());
+    EXPECT_EQ(stateStopped, currentState()->currentState());
 
 
     // step
@@ -144,8 +130,8 @@ TEST_F(SubStateMachineTest, CoffeeExtraction) {
     step();
 
     // check current states
-    EXPECT_EQ(&stateNoExtraction, currentState());
-    EXPECT_EQ(&stateIdle, currentState()->currentState());
+    EXPECT_EQ(stateNoExtraction, currentState());
+    EXPECT_EQ(stateIdle, currentState()->currentState());
 
 
 
