@@ -26,8 +26,6 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gtest/gtest.h>
-#include <chrono>
-#include <thread>
 #include <Timer.h>
 
 class TimerTest : public ::testing::Test, public emb::Timer {
@@ -64,7 +62,7 @@ TEST_F(TimerTest, StartWaitStop) {
 
     // perform a few steps
     while(this->time() < 0.2)
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        Timer::delay(0.01);
 
     EXPECT_NEAR(0.2, this->time(), 0.1);
 
@@ -84,12 +82,22 @@ TEST_F(TimerTest, Pause) {
     // perform a few steps
     for(unsigned i = 0; i < 5; ++i) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        // pause and resume
         if(i == 2)
             pause();
         else if(i == 4)
             start();
+
+        // check time
+        if(i < 2)
+            EXPECT_GT(0.2, time());
+        else if(i <= 4)
+            EXPECT_NEAR(0.2, time(), 0.1);
+        else
+            EXPECT_LT(0.4, time());
+
+        // wait 0.1 s
+        Timer::delay(0.1);
 
     }
 

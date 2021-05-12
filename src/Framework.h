@@ -29,7 +29,19 @@ namespace emb {
 
     struct Framework {
 
+        /**
+         * @brief Returns the current time in milliseconds.
+         * The origin of the time is dependent on the system.
+         * @return
+         */
         static unsigned long getMilliseconds();
+
+
+        /**
+         * @brief Delays the execution for the given time
+         * @param milliseconds The delay time in milliseconds
+         */
+        static void delay(long long int milliseconds);
 
     };
 

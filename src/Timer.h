@@ -94,6 +94,14 @@ namespace emb {
          */
         bool isPaused() const;
 
+
+        /**
+         * @brief Delays the execution for given seconds.
+         * Millisecond accuracy
+         * @param seconds Time to delay in seconds.
+         */
+        static void delay(double seconds);
+
     };
 
 }

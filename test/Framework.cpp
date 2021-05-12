@@ -22,11 +22,20 @@
 //
 
 #include <chrono>
+#include <thread>
 #include <Framework.h>
 
 unsigned long emb::Framework::getMilliseconds() {
 
     using namespace std::chrono;
     return (unsigned long) duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+}
+
+
+void emb::Framework::delay(long long int milliseconds) {
+
+    // wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 
 }

@@ -89,3 +89,10 @@ bool emb::Timer::isPaused() const {
     return _pauseTime > 1e-9;
 
 }
+
+
+void emb::Timer::delay(double seconds) {
+
+    Framework::delay((long long int) (seconds * 1000.0));
+
+}
