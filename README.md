@@ -25,3 +25,21 @@ A very small framework for embedded applications. Can be used for Arduino applic
 - [ ] Filter function based on time
 - [ ] Arduino implementations
 
+# Examples
+
+## Coffee Timer
+
+@startuml
+state NoExtraction {
+  Idle : Entry: display off / reset saved time
+  Paused : Entry: save extraction time
+  Paused --> Idle : delay
+}
+
+Extraction --> Paused : EvPumpOff
+NoExtraction --> Extraction : EvPumpOn
+Extraction : Entry: resume with saved time
+Extraction : Step: display Time
+
+[*] --> Idle
+@enduml
