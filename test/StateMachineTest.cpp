@@ -53,7 +53,7 @@ TEST_F(StateMachineTest, Stepping) {
 
     middle->onEnter = [&middle, &entryCount] (const Transition *transition) {
         entryCount++;
-        EXPECT_EQ(middle, transition->to);
+        EXPECT_EQ(middle, transition->to());
     };
 
     middle->onStep = [&middle, &stepCount] (State *state) {
@@ -63,7 +63,7 @@ TEST_F(StateMachineTest, Stepping) {
 
     middle->onLeave = [&middle, &exitCount] (const Transition *transition) {
         exitCount++;
-        EXPECT_EQ(middle, transition->from);
+        EXPECT_EQ(middle, transition->from());
     };
 
     // define flags for transitions
@@ -75,8 +75,8 @@ TEST_F(StateMachineTest, Stepping) {
     start->addTransition([&middle, &start, &fromStart](const Transition *transition){
 
         // check
-        EXPECT_EQ(start, transition->from);
-        EXPECT_EQ(middle, transition->to);
+        EXPECT_EQ(start, transition->from());
+        EXPECT_EQ(middle, transition->to());
 
         // return
         return fromStart;
@@ -87,8 +87,8 @@ TEST_F(StateMachineTest, Stepping) {
     middle->addTransition([&middle, &end, &toEnd](const Transition *transition){
 
         // check
-        EXPECT_EQ(middle, transition->from);
-        EXPECT_EQ(end, transition->to);
+        EXPECT_EQ(middle, transition->from());
+        EXPECT_EQ(end, transition->to());
 
         // return
         return toEnd;
@@ -99,8 +99,8 @@ TEST_F(StateMachineTest, Stepping) {
     end->addTransition([&end, &start, &backToStart](const Transition *transition){
 
         // check
-        EXPECT_EQ(end, transition->from);
-        EXPECT_EQ(start, transition->to);
+        EXPECT_EQ(end, transition->from());
+        EXPECT_EQ(start, transition->to());
 
         // return
         return backToStart;
@@ -178,12 +178,12 @@ TEST_F(StateMachineTest, CustomState) {
 
     // set transition back
     dynamicState.addTransition([](const Transition* transition) {
-        return ((CustomState*) transition->from)->valueToBeChanged >= 10;
+        return ((CustomState*) transition->from())->valueToBeChanged >= 10;
     }, middle);
 
     // set incrementer
     dynamicState.onEnter = [] (const Transition *transition) {
-        ((CustomState*) transition->to)->valueToBeChanged = 5;
+        ((CustomState*) transition->to())->valueToBeChanged = 5;
     };
 
     // set incrementer
@@ -272,7 +272,7 @@ TEST_F(StateMachineTest, ManipulateTimer) {
 
     // manipulate timer
     state->onEnter = [] (const Transition *t) {
-        t->to->getTimer()->startWithOffset(100.0);
+        t->to()->getTimer()->startWithOffset(100.0);
     };
 
     // initialize state
@@ -284,6 +284,31 @@ TEST_F(StateMachineTest, ManipulateTimer) {
     // check time
     EXPECT_EQ(state, currentState());
     EXPECT_NEAR(100.0, state->getTime(), 1e-3);
+
+}
+
+
+TEST_F(StateMachineTest, Events) {
+
+    // start and end
+    auto start = createState();
+    auto end = createState();
+
+    // create event
+    auto event = start->addEventTransition(end);
+
+    // set initial state
+    start->initialize();
+    EXPECT_EQ(start, currentState());
+
+    // step (shouldn't do anything)
+    step();
+    EXPECT_EQ(start, currentState());
+
+    // fire event (should change state)
+    event.fire();
+    EXPECT_EQ(end, currentState());
+
 
 }
 
@@ -301,27 +326,30 @@ TEST_F(StateMachineTest, TimedExecution) {
     end->addTimedTransition(2.0, start);
 
     // init
-    start->setTimeStepSize(0.1);
+    setTimeStepSize(0.1);
     start->initialize();
 
     // start timer
     timer.start();
 
     // run
-    while(timer.time() < 0.1) {
+    while(timer.time() < 5.0) {
+
+        auto t = timer.time();
 
         // step
         step();
 
         // check
-        if(timer.time() < 0.99)
+        if(t < 0.9)
             EXPECT_EQ(start, currentState());
-        else if(timer.time() > 0.99 && timer.time() < 2.99)
+        else if(t >= 1.2 && t < 3.0)
             EXPECT_EQ(end, currentState());
-        else if(timer.time() > 2.99 && timer.time() < 3.99)
+        else if(t >= 3.2 && t < 4.0)
             EXPECT_EQ(start, currentState());
-        else if(timer.time() > 3.99)
+        else if(t >= 4.2)
             EXPECT_EQ(end, currentState());
+
 
     }
 

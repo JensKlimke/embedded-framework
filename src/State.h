@@ -29,28 +29,28 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include "Event.h"
 #include "Timer.h"
+#include "Transition.h"
 
 namespace emb {
 
     struct State;        //!< Pre-definition of type state
-    struct Transition;   //!< Pre-definition of type transition
 
-    typedef std::function<bool (const Transition *transition)> TransitionConditionCallback; //!< Type definition for transition condition callbacks
     typedef std::function<void (const Transition *transition)> StateInterfaceCallback;      //!< Type definition for callbacks when entering or leaving state
     typedef std::function<void (State *state)> StateStepCallback;                           //!< Type definition for callbacks within state
     typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                      //!< Type definition for transition vector
     typedef std::vector<std::unique_ptr<State>> StateVector;                                //!< Type definition for state vector
 
-    struct Transition {
 
-        State *from;          //!< Start node of the transition
-        State *to;            //!< End node of the transition
-
-        TransitionConditionCallback condition; //!< Condition to follow the transition
-
-    };
-
+    /**
+     * @brief Class for complex states
+     * These states implement the following features
+     * - timer which is started when entering the state
+     * - enter, step and leave callbacks to be set
+     * - step function can be executed in real-time
+     * - belongs to a parent state
+     */
     struct State {
 
         StateInterfaceCallback onEnter{}; //!< Callback to be called on entry
@@ -62,6 +62,18 @@ namespace emb {
          * The performStep function for the state
          */
         virtual void step();
+
+
+        /**
+         * Call enter function
+         */
+        virtual void enter(const Transition *transition);
+
+
+        /**
+         * Call exit function
+         */
+        virtual void exit(const Transition *transition);
 
 
         /**
@@ -92,6 +104,14 @@ namespace emb {
          * @param targetState Target state to be reached
          */
         virtual void addTimedTransition(double after, State *targetState);
+
+
+        /**
+         * Adds an event based transition
+         * @param targetState Target state
+         * @return The event
+         */
+        virtual Event addEventTransition(State *targetState);
 
 
         /**
@@ -154,12 +174,6 @@ namespace emb {
 
         /** Deactivates the state */
         virtual void _deactivate();
-
-        /** Call enter function */
-        virtual void _enter(const Transition *transition);
-
-        /** Call exit function */
-        virtual void _exit(const Transition *transition);
 
         /** Check the transitions */
         virtual bool _checkTransitions();

@@ -64,11 +64,11 @@ void State::_deactivate() {
 }
 
 
-void State::_enter(const Transition *transition) {
+void State::enter(const Transition *transition) {
 
     // activate parent
-    if(_parent != nullptr && _parent != transition->from->getParent())
-        _parent->_enter(transition);
+    if(_parent != nullptr && _parent != transition->from()->getParent())
+        _parent->enter(transition);
 
     // activate the state
     _activate();
@@ -99,13 +99,13 @@ void State::step() {
         _currentState->step();
 
     // delay
-    while(stepTimer.time() < _timeStepSize * (1.0 - TIME_ACCURACY_FACTOR * 0.5))
+    while(stepTimer.time() < _timeStepSize * (1.0 - TIME_ACCURACY_FACTOR))
         Timer::delay(TIME_ACCURACY_FACTOR * _timeStepSize);
 
 }
 
 
-void State::_exit(const Transition *transition) {
+void State::exit(const Transition *transition) {
 
     // run user defined exit state
     if(onLeave)
@@ -115,8 +115,8 @@ void State::_exit(const Transition *transition) {
     _deactivate();
 
     // deactivate parent
-    if(_parent != nullptr && _parent != transition->to->getParent())
-        _parent->_exit(transition);
+    if(_parent != nullptr && _parent != transition->to()->getParent())
+        _parent->exit(transition);
 
 }
 
@@ -126,18 +126,9 @@ bool State::_checkTransitions() {
     // iterate over transitions
     for(auto &t : _transitions) {
 
-        if(t->condition(t.get())) {
-
-            // leave current
-            _exit(t.get());
-
-            // enter new one
-            t->to->_enter(t.get());
-
-            // return with true
+        // check and return if positive
+        if(t->check())
             return true;
-
-        }
 
     }
 
@@ -165,6 +156,19 @@ void State::addTimedTransition(double after, State *targetState) {
                 return this->getTime() >= after;
             }}
     ));
+
+}
+
+
+Event State::addEventTransition(State *targetState) {
+
+    // create transition
+    _transitions.emplace_back(std::unique_ptr<Transition>(
+            new Transition{this, targetState, [] (const Transition *) { return false; }}
+    ));
+
+    // create and return event
+    return Event(_transitions.back().get());
 
 }
 
