@@ -128,10 +128,20 @@ namespace emb {
         virtual const State *getParent() const;
 
 
+        /**
+         * @brief Sets the time step size for each step.
+         * Delays the step function until the time step size is reached. Also takes into account the run-time of the
+         * step function content. The accuracy is 10-times the time step size.
+         * @param timeStepSize
+         */
+        virtual void setTimeStepSize(double timeStepSize);
+
+
     protected:
 
 
         Timer _timer{};                  //!< The timer (is started with entry)
+        double _timeStepSize = 0.0;      //!< The time step size of a step (is just delayed)
 
         State *_parent = nullptr;        //!< The parent state machine
 

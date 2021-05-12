@@ -287,4 +287,45 @@ TEST_F(StateMachineTest, ManipulateTimer) {
 
 }
 
+
+TEST_F(StateMachineTest, TimedExecution) {
+
+    Timer timer{};
+
+    // start and end
+    auto start = createState();
+    auto end = createState();
+
+    // transitions
+    start->addTimedTransition(1.0, end);
+    end->addTimedTransition(2.0, start);
+
+    // init
+    start->setTimeStepSize(0.1);
+    start->initialize();
+
+    // start timer
+    timer.start();
+
+    // run
+    while(timer.time() < 0.1) {
+
+        // step
+        step();
+
+        // check
+        if(timer.time() < 0.99)
+            EXPECT_EQ(start, currentState());
+        else if(timer.time() > 0.99 && timer.time() < 2.99)
+            EXPECT_EQ(end, currentState());
+        else if(timer.time() > 2.99 && timer.time() < 3.99)
+            EXPECT_EQ(start, currentState());
+        else if(timer.time() > 3.99)
+            EXPECT_EQ(end, currentState());
+
+    }
+
+}
+
+
 #pragma clang diagnostic pop

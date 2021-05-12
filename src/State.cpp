@@ -26,6 +26,7 @@
 
 using namespace emb;
 
+#define TIME_ACCURACY_FACTOR 0.1
 
 
 Timer * State::getTimer() {
@@ -81,6 +82,10 @@ void State::_enter(const Transition *transition) {
 
 void State::step() {
 
+    // create step timer
+    Timer stepTimer{};
+    stepTimer.start();
+
     // check transitions
     if(_checkTransitions())
         return;
@@ -92,6 +97,10 @@ void State::step() {
     // perform sub-step
     if(_currentState)
         _currentState->step();
+
+    // delay
+    while(stepTimer.time() < _timeStepSize * (1.0 - TIME_ACCURACY_FACTOR * 0.5))
+        Timer::delay(TIME_ACCURACY_FACTOR * _timeStepSize);
 
 }
 
@@ -203,5 +212,12 @@ State * State::currentState() const {
 const State * State::getParent() const {
 
     return _parent;
+
+}
+
+
+void State::setTimeStepSize(double timeStepSize) {
+
+    _timeStepSize = timeStepSize;
 
 }
