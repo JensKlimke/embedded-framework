@@ -67,43 +67,43 @@ TEST_F(StateMachineTest, Stepping) {
     };
 
     // define flags for transitions
-    bool fromStart = false;
-    bool toEnd = false;
-    bool backToStart = false;
+    bool fromStartToMiddle = false;
+    bool fromMiddleToEnd = false;
+    bool fromEndToStart = false;
 
     // set start to middle transition
-    start->addTransition([&middle, &start, &fromStart](const Transition *transition){
+    start->addTransition([&middle, &start, &fromStartToMiddle](const Transition *transition){
 
         // check
         EXPECT_EQ(start, transition->from());
         EXPECT_EQ(middle, transition->to());
 
         // return
-        return fromStart;
+        return fromStartToMiddle;
 
     }, middle);
 
     // set middle to end transition
-    middle->addTransition([&middle, &end, &toEnd](const Transition *transition){
+    middle->addTransition([&middle, &end, &fromMiddleToEnd](const Transition *transition){
 
         // check
         EXPECT_EQ(middle, transition->from());
         EXPECT_EQ(end, transition->to());
 
         // return
-        return toEnd;
+        return fromMiddleToEnd;
 
     }, end);
 
     // set end back to start transition
-    end->addTransition([&end, &start, &backToStart](const Transition *transition){
+    end->addTransition([&end, &start, &fromEndToStart](const Transition *transition){
 
         // check
         EXPECT_EQ(end, transition->from());
         EXPECT_EQ(start, transition->to());
 
         // return
-        return backToStart;
+        return fromEndToStart;
 
     }, start);
 
@@ -122,7 +122,7 @@ TEST_F(StateMachineTest, Stepping) {
     EXPECT_EQ(start, _currentState);
 
     // set condition
-    fromStart = true;
+    fromStartToMiddle = true;
 
     // perform step
     step();
@@ -133,7 +133,7 @@ TEST_F(StateMachineTest, Stepping) {
     EXPECT_EQ(middle, _currentState);
 
     // set condition
-    toEnd = true;
+    fromMiddleToEnd = true;
 
     // perform step
     step();
@@ -145,15 +145,17 @@ TEST_F(StateMachineTest, Stepping) {
 
 
     // set condition
-    backToStart = true;
+    fromStartToMiddle = false;
+    fromEndToStart = true;
 
     // perform step
     step();
     EXPECT_EQ(start, _currentState);
 
-    // perform step
-    step();
-    EXPECT_EQ(middle, _currentState);
+    // set condition
+    fromStartToMiddle = true;
+    fromMiddleToEnd = true;
+    fromEndToStart = false;
 
     // perform step
     step();

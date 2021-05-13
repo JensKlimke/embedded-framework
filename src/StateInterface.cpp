@@ -18,38 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-// Created by Jens Klimke on $date.get('yyyy-M-d').
-// Contributors:
+// Created by Jens Klimke on 2021-05-18.
 //
 
-
-#include "Transition.h"
 #include "StateInterface.h"
 
 using namespace emb;
 
-bool Transition::execute() const {
+const Transition * StateInterface::addTransition(TransitionConditionCallback &&condition, StateInterface *targetState) {
 
-    return to->enter(this);
+    // create and add transition
+    transitions.emplace_back(std::unique_ptr<Transition>(
+        new Transition{this, targetState, std::move(condition)}
+    ));
+
+    // return transition
+    return transitions.back().get();
 
 }
 
-const Transition *Transition::follow() const {
 
-    // check condition, if false return null
-    if(!condition(this))
-        return nullptr;
+const Transition * StateInterface::checkTransition() const {
 
-    // check target state transitions
-    auto final = to->checkTransition();
-    if(final != nullptr)
-        return final;
+    // check next transitions
+    for(auto &t : transitions) {
 
-    // try to enter target state
-    if(to->enter(this))
-        return this;
+        // get final transition
+        auto final = t->follow();
 
-    // return null (no target found)
+        // return if found
+        if(final != nullptr) {
+
+            // leave this one
+
+            //
+            return final;
+
+        }
+
+    }
+
     return nullptr;
 
 }

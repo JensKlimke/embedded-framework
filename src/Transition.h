@@ -28,13 +28,15 @@
 
 #include <functional>
 
+#define ALWAYS_TRUE_CONDITION {[] (const emb::Transition *) { return true; }}
+#define ALWAYS_FALSE_CONDITION {[] (const emb::Transition *) { return false; }}
+
 namespace emb {
 
-    /**!< pre-definition of state */
-    class State;
 
     /**!< pre-definition of transition */
     class Transition;
+    class StateInterface;
 
     /**!< Type definition of condition callback */
     typedef std::function<bool (const Transition *transition)> TransitionConditionCallback; //!< Type definition for transition condition callbacks
@@ -46,50 +48,25 @@ namespace emb {
      */
     struct Transition {
 
-    protected:
-
-        State *_from = nullptr; //!< Start node of the transition
-        State *_to = nullptr;   //!< End node of the transition
-
-        TransitionConditionCallback _condition; //!< Condition to follow the transition
-
-    public:
+        StateInterface *from;                  //!< Start node of the transition
+        StateInterface *to;                    //!< End node of the transition
+        TransitionConditionCallback condition; //!< Condition to follow the transition
 
         /**
-         * Constructor to create transition
-         * @param from Source state
-         * @param to Target state
-         * @param condition Condition callback
-         */
-        Transition(State *from, State *to, TransitionConditionCallback &&condition);
-
-
-        /**
-         * @brief Check the transition.
-         * Deactivates the source and activate the destination when positive.
-         * @return True when positive
-         */
-        bool check() const;
-
-
-        /**
-         * Forces the transition
-         */
-        void execute() const;
-
-
-        /**
-         * Returns the source state
-         * @return Source state
-         */
-        State *from() const;
-
-
-        /**
-         * Returns the target state
+         * @brief Follows the transition and returns true if successfully.
+         * Successful means that a state is reached in which the state machine can remain. If for example a choice node
+         * is the target of the transition and the following transition cannot be followed (due to their conditions),
+         * the method returns false and the previous state needs to be activated, if possible.
          * @return
          */
-        State *to() const;
+        bool execute() const;
+
+
+        /**
+         * Follows the transitions until final state is found.
+         * @return The final transition
+         */
+        const Transition *follow() const;
 
     };
 

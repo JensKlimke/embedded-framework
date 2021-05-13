@@ -39,7 +39,6 @@ namespace emb {
 
     typedef std::function<void (const Transition *transition)> StateInterfaceCallback;      //!< Type definition for callbacks when entering or leaving state
     typedef std::function<void (State *state)> StateStepCallback;                           //!< Type definition for callbacks within state
-    typedef std::vector<std::unique_ptr<Transition>> TransitionVector;                      //!< Type definition for transition vector
     typedef std::vector<std::unique_ptr<State>> StateVector;                                //!< Type definition for state vector
 
 
@@ -88,14 +87,6 @@ namespace emb {
          * @return Time of the state
          */
         virtual double getTime() const;
-
-
-        /**
-         * Adds a transition to the target state
-         * @param condition Condition callback to be checked
-         * @param targetState Target state to be reached
-         */
-        virtual void addTransition(TransitionConditionCallback &&condition, State *targetState);
 
 
         /**
@@ -164,9 +155,9 @@ namespace emb {
         double _timeStepSize = 0.0;      //!< The time step size of a step (is just delayed)
 
         State *_parent = nullptr;        //!< The parent state machine
+        State *_currentState = nullptr;  //!< The currently active child state
 
         StateVector _states{};           //!< Vector of states for memory purposes
-        TransitionVector _transitions{}; //!< All transitions
 
 
         /** Activates the state */
@@ -175,10 +166,7 @@ namespace emb {
         /** Deactivates the state */
         virtual void _deactivate();
 
-        /** Check the transitions */
-        virtual bool _checkTransitions();
 
-        State *_currentState = nullptr;
     };
 
 }

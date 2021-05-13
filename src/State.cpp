@@ -87,7 +87,7 @@ void State::step() {
     stepTimer.start();
 
     // check transitions
-    if(_checkTransitions())
+    if(checkTransitions())
         return;
 
     // run step
@@ -121,7 +121,7 @@ void State::exit(const Transition *transition) {
 }
 
 
-bool State::_checkTransitions() {
+bool State::checkTransitions() {
 
     // iterate over transitions
     for(auto &t : _transitions) {
@@ -134,16 +134,6 @@ bool State::_checkTransitions() {
 
     // no transition active
     return false;
-
-}
-
-
-void State::addTransition(TransitionConditionCallback &&condition, State *targetState) {
-
-    // create and add transition
-    _transitions.emplace_back(std::unique_ptr<Transition>(
-            new Transition{this, targetState, std::move(condition)}
-    ));
 
 }
 

@@ -30,6 +30,6 @@ emb::Event::Event(const Transition *transition) : _transition(transition){}
 
 void emb::Event::fire() const {
 
-    _transition->execute();
+    // _transition->execute();
 
 }
